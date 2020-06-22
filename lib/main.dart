@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:dash_chat/dash_chat.dart';
@@ -47,19 +49,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<DashChatState> _chatViewKey = GlobalKey<DashChatState>();
-  var channel = IOWebSocketChannel.connect('ws://52.79.130.121:8080/chat/room');
-
+//  var channel = IOWebSocketChannel.connect('ws://52.79.130.121:8080/chat/room');
+  var channel = IOWebSocketChannel.connect('ws://localhost:8080/chat/room');
   final ChatUser user = ChatUser(
-    name: "Fayeed",
-    firstName: "Fayeed",
-    lastName: "Pawaskar",
-    uid: "123456789",
-    avatar: "https://www.wrappixel.com/ampleadmin/assets/images/users/4.jpg",
-  );
-
-  final ChatUser otherUser = ChatUser(
-    name: "Mrfatty",
-    uid: "25649654",
+    uid: "1234",
+    firstName: "Minssogi",
+    lastName: "Jeon",
   );
 
   List<ChatMessage> messages = List<ChatMessage>();
@@ -83,9 +78,10 @@ class _MyHomePageState extends State<MyHomePage> {
       body: StreamBuilder(
           stream: channel.stream,
           builder: (context, snapshot) {
-//              List<DocumentSnapshot> items = snapshot.data;
-//              var messages =
-//              items.map((i) => ChatMessage.fromJson(i.data)).toList();
+            if(snapshot.hasData) {
+              print(snapshot.data);
+              messages.add(ChatMessage.fromJson(jsonDecode(snapshot.data)));
+            }
             return DashChat(
                 key: _chatViewKey,
                 inverted: false,
@@ -93,8 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 sendOnEnter: true,
                 textInputAction: TextInputAction.send,
                 user: user,
-                inputDecoration:
-                InputDecoration.collapsed(hintText: "Add message here..."),
+                inputDecoration: InputDecoration.collapsed(hintText: "Add message here..."),
                 dateFormat: DateFormat('yyyy-MMM-dd'),
                 timeFormat: DateFormat('HH:mm'),
                 messages: messages,
@@ -128,8 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Timer(Duration(milliseconds: 300), () {
                     _chatViewKey.currentState.scrollController
                       ..animateTo(
-                        _chatViewKey.currentState.scrollController.position
-                            .maxScrollExtent,
+                        _chatViewKey.currentState.scrollController.position.maxScrollExtent,
                         curve: Curves.easeOut,
                         duration: const Duration(milliseconds: 300),
                       );
