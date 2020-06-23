@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:messenger/global_model.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:dash_chat/dash_chat.dart';
 
 import 'dart:async';
-import 'dart:io';
 
 void main() {
   runApp(MyApp());
@@ -53,8 +53,9 @@ class _MyHomePageState extends State<MyHomePage> {
   var channel = IOWebSocketChannel.connect('ws://localhost:8080/chat/room');
   final ChatUser user = ChatUser(
     uid: "1234",
-    firstName: "Minssogi",
-    lastName: "Jeon",
+    firstName: "ssogi",
+    lastName: "Min",
+    avatar: null,
   );
 
   List<ChatMessage> messages = List<ChatMessage>();
@@ -65,22 +66,26 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  void onSend(ChatMessage message) async {
-
+  void onSend(ChatMessage message) {
+    channel.sink.add(jsonEncode(message));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chat App"),
+        title: Text("Mins Messenger"),
       ),
       body: StreamBuilder(
           stream: channel.stream,
           builder: (context, snapshot) {
             if(snapshot.hasData) {
               print(snapshot.data);
-              messages.add(ChatMessage.fromJson(jsonDecode(snapshot.data)));
+              var chatMessage = ChatMessage.fromJson(jsonDecode(snapshot.data));
+              if(chatMessage.user.avatar == null) {
+                chatMessage.user.avatar = defaultAvatar;
+              }
+              messages.add(chatMessage);
             }
             return DashChat(
                 key: _chatViewKey,
@@ -89,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 sendOnEnter: true,
                 textInputAction: TextInputAction.send,
                 user: user,
-                inputDecoration: InputDecoration.collapsed(hintText: "Add message here..."),
+                inputDecoration: InputDecoration.collapsed(hintText: "메세지를 입력하세요"),
                 dateFormat: DateFormat('yyyy-MMM-dd'),
                 timeFormat: DateFormat('HH:mm'),
                 messages: messages,
@@ -97,10 +102,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 showAvatarForEveryMessage: false,
                 scrollToBottom: true,
                 onPressAvatar: (ChatUser user) {
-                  print("OnPressAvatar: ${user.name}");
+
+                  print("OnPressAvatar: ${user.lastName}");
                 },
                 onLongPressAvatar: (ChatUser user) {
-                  print("OnLongPressAvatar: ${user.name}");
+
+                  print("OnLongPressAvatar: ${user.lastName} ${user.firstName}");
                 },
                 inputMaxLines: 5,
                 messageContainerPadding: EdgeInsets.only(left: 5.0, right: 5.0),
@@ -137,8 +144,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 trailing: <Widget>[
                   IconButton(
                     icon: Icon(Icons.photo),
-                    onPressed: () async {
-
+                    onPressed: () {
+                      var value = _chatViewKey.currentState.widget.textController.value;
+                      print(value);
                     },
                   ),
                 ],
