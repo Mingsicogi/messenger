@@ -49,8 +49,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<DashChatState> _chatViewKey = GlobalKey<DashChatState>();
-//  var channel = IOWebSocketChannel.connect('ws://52.79.130.121:8080/chat/room');
-  var channel = IOWebSocketChannel.connect('ws://localhost:8080/chat/room');
+  var channel = IOWebSocketChannel.connect('ws://52.79.130.121:8080/chat/room');
+//  var channel = IOWebSocketChannel.connect('ws://localhost:8080/chat/room');
   final ChatUser user = ChatUser(
     uid: "1234",
     firstName: "ssogi",
